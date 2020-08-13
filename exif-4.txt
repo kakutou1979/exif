@@ -1,0 +1,104 @@
+ar Orientation=1;
+
+var imageObj=newImage();
+
+imageObj.src='图片地址（可以是url，也可以是本地file）';
+
+imageObj.onload=function(){
+
+varOrientation=1;
+
+var cvs=document.createElement('canvas');
+
+var ctx=cvs.getContext('2d');
+
+var scale=1;//预留压缩比
+
+var size=this.size;
+
+cvs.width=this.width*scale;
+
+cvs.height=this.height*scale;//计算等比缩小后图片宽高
+
+EXIF.getData(imageObj,function() {
+
+Orientation=EXIF.getTag(this,"Orientation");
+
+if(Orientation&&Orientation!=1){
+
+switch(Orientation){
+
+case6:// 旋转90度
+
+/**
+
+*这边主要是获取到要加载标签的宽和高，用来给画布设置大小，这里cvs是预支的画布，ctx是重画的图像。
+
+*/
+
+var fatherWidth=parseFloat($('.detailPhotoimg').css('width'));
+
+var fatherheight=parseFloat($('.detailPhotoimg').css('height'));
+
+scale=fatherWidth/this.width;
+
+heightScale=fatherheight/this.height;
+
+cvs.width=fatherWidth;
+
+var x=this.height*scale/2;
+
+//旋转后的画布需要img标签获取高度的2倍
+
+cvs.height=fatherheight*2;
+
+ctx.rotate(Math.PI/2);
+
+// (0,-imgHeight) 从旋转原理图那里获得的起始点
+
+ctx.drawImage(this,0,-this.height*scale-(fatherWidth/2-x),fatherWidth,fatherheight);
+
+break;
+
+case3:// 旋转180度
+
+ctx.rotate(Math.PI);
+
+ctx.drawImage(this,this.width*scale,-this.height*scale,this.width*scale,this.height*scale);
+
+break;
+
+case8:// 旋转-90度
+
+cvs.width=this.height*scale;
+
+cvs.height=this.width*scale;
+
+ctx.rotate(3*Math.PI/2);
+
+ctx.drawImage(this,-this.width*scale,0,this.width*scale,this.height*scale);
+
+break;
+
+}
+
+}else{
+
+ctx.drawImage(this,0,0,cvs.width,cvs.height);
+
+}
+
+var newImageData=cvs.toDataURL(this,1);
+
+//重新定向加载url地址
+
+$('.detailPhotoimg').attr('src',newImageData);
+
+});
+
+};
+
+作者：李小师
+链接：https://www.jianshu.com/p/442b5ad217b8
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
